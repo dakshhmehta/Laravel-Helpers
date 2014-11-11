@@ -160,9 +160,11 @@ class Template {
 		$form = '<form class="form-horizontal" id="'.$name.'" enctype="multipart/form-data" action="'.$action.'" method="post">'.Form::token();
 
 		$form .= '<ul class="nav nav-tabs">';
+		$is_first = true;
 		foreach($data['tabs'] as $tab)
 		{
-			$form .= '<li><a href="#'.str_replace(' ', '-', strtolower($tab)).'" data-toggle="tab">'.$tab.'</a></li>';
+			$form .= '<li class="'.(($is_first == true) ? 'active': '').'"><a href="#'.str_replace(' ', '-', strtolower($tab)).'" data-toggle="tab">'.$tab.'</a></li>';
+			$is_first = false;
 		}
 		$form .= '</ul>';
 
@@ -175,8 +177,8 @@ class Template {
 			{
 				if(! isset($field['html']))
 				{
-					$form .= '<div class="form-group" '.(($errors->has($field['name'])) ? 'has-error' : '').'>';
-					$form .= '<label class="col-lg-3" for="'.$field['name'].'">'.$field['label'].' '.((isset($field['hint'])) ? '<span class="icon tip" title="'.$field['hint'].'"><i class="glyphicon glyphicon-question-sign"></i></span>' : '').'</label>';
+					$form .= '<div class="form-group'.(($errors->has($field['name'])) ? ' has-error' : '').'">';
+					$form .= '<label class="col-lg-3 control-label" for="'.$field['name'].'">'.$field['label'].' '.((isset($field['hint'])) ? '<span class="icon tip" title="'.$field['hint'].'"><i class="glyphicon glyphicon-question-sign"></i></span>' : '').'</label>';
 					$form .= '<div class="col-lg-9">';
 					if(isset($field['field']))
 					{
@@ -201,6 +203,7 @@ class Template {
 								: $field['value']
 							)
 						).'"'.$attributes.' />';
+						$form .= $errors->first($field['name'], '<span class="help-block">:message</span>');
 					}
 					$form .= '</div>';
 					$form .= '</div>';
