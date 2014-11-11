@@ -29,7 +29,7 @@ class HelpersServiceProvider extends ServiceProvider {
 	public function register()
 	{
 		//
-		$this->app['dax-helper'] = $this->app->shared(function($app){
+		$this->app['dax-template'] = $this->app->share(function($app){
 			return new Template;
 		});
 	}
@@ -41,7 +41,7 @@ class HelpersServiceProvider extends ServiceProvider {
 	 */
 	public function provides()
 	{
-		return array('dax-helper');
+		return array('dax-template');
 	}
 
 }

@@ -1,6 +1,7 @@
 <?php namespace Dakshhmehta\Helpers;
 
 use Input;
+use Form;
 
 class Template {
 
@@ -154,7 +155,7 @@ class Template {
 	 * @param  [type] $value To fill the default value(s) of form field matching with it's name
 	 * @return mixed Complete bootstrap 3 form markup
 	 */
-	public static function form($name, $action, $data = array(), $value = null)
+	public static function form($name, $action, $data = array(), $errors, $value = null)
 	{
 		$form = '<form class="form-horizontal" id="'.$name.'" enctype="multipart/form-data" action="'.$action.'" method="post">'.Form::token();
 
@@ -174,8 +175,8 @@ class Template {
 			{
 				if(! isset($field['html']))
 				{
-					$form .= '<div class="form-group">';
-					$form .= '<label class="col-lg-3" for="'.$field['name'].'">'.$field['label'].' '.((isset($field['hint'])) ? '<span class="icon tip" title="'.$field['hint'].'"><i class="icon16 icomoon-icon-info-2"></i></span>' : '').'</label>';
+					$form .= '<div class="form-group" '.(($errors->has($field['name'])) ? 'has-error' : '').'>';
+					$form .= '<label class="col-lg-3" for="'.$field['name'].'">'.$field['label'].' '.((isset($field['hint'])) ? '<span class="icon tip" title="'.$field['hint'].'"><i class="glyphicon glyphicon-question-sign"></i></span>' : '').'</label>';
 					$form .= '<div class="col-lg-9">';
 					if(isset($field['field']))
 					{
