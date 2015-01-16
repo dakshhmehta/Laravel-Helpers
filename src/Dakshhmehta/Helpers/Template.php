@@ -7,6 +7,7 @@ class Template {
 
 	protected static $rawData = array();
 	protected static $files = array();
+	protected $handler = null;
 
 	public function __construct()
 	{
@@ -124,6 +125,10 @@ class Template {
 		return $html;
 	}
 
+	public function setFormHandler(FormHandlerInterface $handler){
+		$this->handler = $handler;
+	}
+
 	/**
 	 * Generate the bootstrap3 form with tabs
 	 *
@@ -159,59 +164,24 @@ class Template {
 	{
 		$form = '<form class="form-horizontal" id="'.$name.'" enctype="multipart/form-data" action="'.$action.'" method="post">'.Form::token();
 
-		$form .= '<ul class="nav nav-tabs">';
-		$is_first = true;
-		foreach($data['tabs'] as $tab)
-		{
-			$form .= '<li class="'.(($is_first == true) ? 'active': '').'"><a href="#'.str_replace(' ', '-', strtolower($tab)).'" data-toggle="tab">'.$tab.'</a></li>';
-			$is_first = false;
-		}
-		$form .= '</ul>';
+		$form .= $this->handler->beforeForm($data);
 
-		$form .= '<div class="tab-content">';
 		$is_first = true;
 		foreach($data['tabsContent'] as $tab => $fields)
 		{
 			$form .= '<div class="tab-pane fade'.(($is_first == true) ? ' active in': '').'" id="'.str_replace(' ', '-', strtolower($tab)).'">';
 			foreach($fields as $field)
 			{
-				if(! isset($field['html']))
-				{
-					$form .= '<div class="form-group'.(($errors->has($field['name'])) ? ' has-error' : '').'">';
-					$form .= '<label class="col-lg-3 control-label" for="'.$field['name'].'">'.$field['label'].' '.((isset($field['hint'])) ? '<span class="icon tip" title="'.$field['hint'].'"><i class="glyphicon glyphicon-question-sign"></i></span>' : '').'</label>';
-					$form .= '<div class="col-lg-9">';
-					if(isset($field['field']))
-					{
-						$form .= $field['field'];
+				// Prepare input attributes
+				$attributes = '';
+				if(isset($field['attributes'])){
+					foreach($field['attributes'] as $attribute => $v){
+						$attributes .= ' '.$attribute.'="'.$v.'"';
 					}
-					else
-					{
-						// Prepare input attributes
-						$attributes = '';
-						if(isset($field['attributes'])){
-							foreach($field['attributes'] as $attribute => $v){
-								$attributes .= ' '.$attribute.'="'.$v.'"';
-							}
-						}
+				}
 
-						$form .= '<input '.((isset($field['placeholder'])) ? 'placeholder="'.$field['placeholder'].'"' : '').' type="text" class="form-control" name="'.$field['name'].'" id="'.str_replace('[]', '', $field['name']).'" value="'.
-						(($value == null)
-						? Input::old(str_replace('[]', '', $field['name']), '')
-						: 
-						 	((! isset($field['value']))
-								? $value->{str_replace('[]', '', $field['name'])}
-								: $field['value']
-							)
-						).'"'.$attributes.' />';
-						$form .= $errors->first($field['name'], '<span class="help-block">:message</span>');
-					}
-					$form .= '</div>';
-					$form .= '</div>';
-				}
-				else
-				{
-					$form .= $field['html'];
-				}
+				$form .= $this->handler->renderField($field, $errors);
+
 			}
 			$form .= '</div>';
 			$is_first = false;
