@@ -1,15 +1,9 @@
 <?php namespace Dakshhmehta\Helpers;
 
 use Illuminate\Support\ServiceProvider;
+use Config;
 
 class HelpersServiceProvider extends ServiceProvider {
-
-	/**
-	 * Indicates if loading of the provider is deferred.
-	 *
-	 * @var bool
-	 */
-	protected $defer = true;
 
 	/**
 	 * Bootstrap the application events.
@@ -30,7 +24,7 @@ class HelpersServiceProvider extends ServiceProvider {
 	{
 		//
 		$this->app['dax-template'] = $this->app->share(function($app){
-			return new Template;
+			return new Template(Config::get('helpers::handler'));
 		});
 	}
 

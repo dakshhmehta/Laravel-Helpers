@@ -2,18 +2,25 @@
 
 use Input;
 use Form;
+use Dakshhmehta\Helpers\FormHandlerInterface;
 
 class Template {
 
 	protected static $rawData = array();
 	protected static $files = array();
+	protected $handler = null;
 
-	public function __construct()
+	public function __construct($handler)
 	{
 		self::$rawData['js'] = array();
 		self::$rawData['css'] = array();
 		self::$files['js'] = array();
 		self::$files['css'] = array();
+
+		if(is_string($handler))
+			$this->handler = new $handler;
+		else
+			$this->handler = $handler;
 	}
 
 	/**
@@ -124,6 +131,10 @@ class Template {
 		return $html;
 	}
 
+	public function setFormHandler(FormHandlerInterface $handler){
+		$this->handler = $handler;
+	}
+
 	/**
 	 * Generate the bootstrap3 form with tabs
 	 *
@@ -155,70 +166,29 @@ class Template {
 	 * @param  [type] $value To fill the default value(s) of form field matching with it's name
 	 * @return mixed Complete bootstrap 3 form markup
 	 */
-	public static function form($name, $action, $data = array(), $errors, $value = null)
+	public function form($name, $action, $data = array(), $errors, $value = null)
 	{
 		$form = '<form class="form-horizontal" id="'.$name.'" enctype="multipart/form-data" action="'.$action.'" method="post">'.Form::token();
 
-		$form .= '<ul class="nav nav-tabs">';
-		$is_first = true;
-		foreach($data['tabs'] as $tab)
-		{
-			$form .= '<li class="'.(($is_first == true) ? 'active': '').'"><a href="#'.str_replace(' ', '-', strtolower($tab)).'" data-toggle="tab">'.$tab.'</a></li>';
-			$is_first = false;
-		}
-		$form .= '</ul>';
+		$form .= $this->handler->beforeForm($data);
 
-		$form .= '<div class="tab-content">';
-		$is_first = true;
-		foreach($data['tabsContent'] as $tab => $fields)
+		foreach($data['groups'] as $tab => $fields)
 		{
-			$form .= '<div class="tab-pane fade'.(($is_first == true) ? ' active in': '').'" id="'.str_replace(' ', '-', strtolower($tab)).'">';
+			$form .= $this->handler->beforeGroup([$tab => $fields]);
+
 			foreach($fields as $field)
 			{
-				if(! isset($field['html']))
-				{
-					$form .= '<div class="form-group'.(($errors->has($field['name'])) ? ' has-error' : '').'">';
-					$form .= '<label class="col-lg-3 control-label" for="'.$field['name'].'">'.$field['label'].' '.((isset($field['hint'])) ? '<span class="icon tip" title="'.$field['hint'].'"><i class="glyphicon glyphicon-question-sign"></i></span>' : '').'</label>';
-					$form .= '<div class="col-lg-9">';
-					if(isset($field['field']))
-					{
-						$form .= $field['field'];
-					}
-					else
-					{
-						// Prepare input attributes
-						$attributes = '';
-						if(isset($field['attributes'])){
-							foreach($field['attributes'] as $attribute => $v){
-								$attributes .= ' '.$attribute.'="'.$v.'"';
-							}
-						}
+				$form .= $this->handler->beforeField($field);
 
-						$form .= '<input '.((isset($field['placeholder'])) ? 'placeholder="'.$field['placeholder'].'"' : '').' type="text" class="form-control" name="'.$field['name'].'" id="'.str_replace('[]', '', $field['name']).'" value="'.
-						(($value == null)
-						? Input::old(str_replace('[]', '', $field['name']), '')
-						: 
-						 	((! isset($field['value']))
-								? $value->{str_replace('[]', '', $field['name'])}
-								: $field['value']
-							)
-						).'"'.$attributes.' />';
-						$form .= $errors->first($field['name'], '<span class="help-block">:message</span>');
-					}
-					$form .= '</div>';
-					$form .= '</div>';
-				}
-				else
-				{
-					$form .= $field['html'];
-				}
+				$form .= $this->handler->renderField($field, $value, $errors);
+
+				$form .= $this->handler->afterField($field);
 			}
-			$form .= '</div>';
-			$is_first = false;
-		}
-		$form .= '</div>';
 
-		$form .= '<div class="form-group"><div class="col-lg-offset-2"><button type="submit" class="btn btn-success">Submit</button></div></div>';
+			$form .= $this->handler->afterGroup([$tab => $fields]);
+		}
+
+		$form .= $this->handler->afterForm($data);
 
 		$form .= '</form>';
 
