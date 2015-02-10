@@ -27,6 +27,10 @@ class BSTabbedHandler implements FormHandlerInterface {
 
 	}
 
+	public function beforeGroup($group){
+		
+	}
+
 	public function beforeField($field, $errors){
 
 	}
