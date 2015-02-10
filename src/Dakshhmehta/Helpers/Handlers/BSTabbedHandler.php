@@ -1,10 +1,15 @@
 <?php namespace Dakshhmehta\Helpers\Handlers;
 
 use Dakshhmehta\Helpers\FormHandlerInterface;
+<<<<<<< HEAD
 use Input;
 
 class BSTabbedHandler implements FormHandlerInterface {
 	public static $is_first = 1;
+=======
+
+class BSTabbedHandler implements FormHandlerInterface {
+>>>>>>> fdad7ca8becb22900be5a3775bc77e93dbd3e662
 	public function beforeForm($form){
 		$content = null;
 
@@ -26,6 +31,7 @@ class BSTabbedHandler implements FormHandlerInterface {
 
 	}
 
+<<<<<<< HEAD
 	public function beforeGroup($group){
 		return '<div class="tab-pane fade'.((self::$is_first++ == 1) ? ' active in': '').'" id="'.str_replace(' ', '-', strtolower(key($group))).'">';
 	}
@@ -35,6 +41,13 @@ class BSTabbedHandler implements FormHandlerInterface {
 	}
 
 	public function renderField($field, $value, $errors){
+=======
+	public function beforeField($field, $errors){
+
+	}
+
+	public function renderField($field, $errors){
+>>>>>>> fdad7ca8becb22900be5a3775bc77e93dbd3e662
 		$content = null;
 		if(! isset($field['html']))
 		{
@@ -48,6 +61,7 @@ class BSTabbedHandler implements FormHandlerInterface {
 			else
 			{
 
+<<<<<<< HEAD
 				// Prepare input attributes
 				$attributes = '';
 				if(isset($field['attributes'])){
@@ -62,6 +76,11 @@ class BSTabbedHandler implements FormHandlerInterface {
 						? Input::old(str_replace('[]', '', $field['name']), '')
 						: $field['value']
 					)
+=======
+				$content .= '<input '.((isset($field['placeholder'])) ? 'placeholder="'.$field['placeholder'].'"' : '').' type="text" class="form-control" name="'.$field['name'].'" id="'.str_replace('[]', '', $field['name']).'" value="'.
+				(($value == null)
+				? Input::old(str_replace('[]', '', $field['name']), '')
+>>>>>>> fdad7ca8becb22900be5a3775bc77e93dbd3e662
 				: 
 				 	((! isset($field['value']))
 						? $value->{str_replace('[]', '', $field['name'])}
@@ -81,6 +100,7 @@ class BSTabbedHandler implements FormHandlerInterface {
 		return $content;
 	}
 
+<<<<<<< HEAD
 	public function afterField($field){
 
 	}
@@ -98,5 +118,13 @@ class BSTabbedHandler implements FormHandlerInterface {
 		$content .= '<div class="form-group"><div class="col-lg-offset-2"><button type="submit" class="btn btn-success">Submit</button></div></div>';
 
 		return $content;
+=======
+	public function afterField($field, $errors){
+
+	}
+
+	public function afterForm($form){
+
+>>>>>>> fdad7ca8becb22900be5a3775bc77e93dbd3e662
 	}
 }
