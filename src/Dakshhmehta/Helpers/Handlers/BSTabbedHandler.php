@@ -31,7 +31,7 @@ class BSTabbedHandler implements FormHandlerInterface {
 
 	}
 
-	public function renderField($field, $errors){
+	public function renderField($field, $value, $errors){
 		$content = null;
 		if(! isset($field['html']))
 		{
@@ -77,7 +77,7 @@ class BSTabbedHandler implements FormHandlerInterface {
 		return $content;
 	}
 
-	public function afterField($field){
+	public function afterField($field, $errors){
 
 	}
 
