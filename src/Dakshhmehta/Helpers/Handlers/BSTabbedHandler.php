@@ -57,7 +57,11 @@ class BSTabbedHandler implements FormHandlerInterface {
 				}
 								$content .= '<input '.((isset($field['placeholder'])) ? 'placeholder="'.$field['placeholder'].'"' : '').' type="text" class="form-control" name="'.$field['name'].'" id="'.str_replace('[]', '', $field['name']).'" value="'.
 				(($value == null)
-				? Input::old(str_replace('[]', '', $field['name']), '')
+				? 
+					((! isset($field['value']))
+						? Input::old(str_replace('[]', '', $field['name']), '')
+						: $field['value']
+					)
 				: 
 				 	((! isset($field['value']))
 						? $value->{str_replace('[]', '', $field['name'])}
