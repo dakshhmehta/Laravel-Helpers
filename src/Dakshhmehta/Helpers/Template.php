@@ -178,11 +178,11 @@ class Template {
 
 			foreach($fields as $field)
 			{
-				$form .= $this->handler->beforeField($field);
+				$form .= $this->handler->beforeField($field, $errors);
 
 				$form .= $this->handler->renderField($field, $value, $errors);
 
-				$form .= $this->handler->afterField($field);
+				$form .= $this->handler->afterField($field, $errors);
 			}
 
 			$form .= $this->handler->afterGroup([$tab => $fields]);
