@@ -4,7 +4,7 @@ use Dakshhmehta\Helpers\FormHandlerInterface;
 use Input;
 
 class BSTabbedHandler implements FormHandlerInterface {
-	public static $is_first = 1;
+	public static $is_first = 0;
 
 	public function beforeForm($form){
 		$content = null;
@@ -28,7 +28,8 @@ class BSTabbedHandler implements FormHandlerInterface {
 	}
 
 	public function beforeGroup($group){
-		
+		$group = key($group);
+		return '<div style="padding-top: 15px;" role="tabpanel" class="tab-pane '.((self::$is_first++ == 0) ? 'active' : '').'" id="'.str_replace(' ', '-', strtolower($group)).'">';
 	}
 
 	public function beforeField($field, $errors){

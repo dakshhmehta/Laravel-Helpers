@@ -58,6 +58,22 @@ class Template {
 	}
 
 	/**
+	 * Add raw Css to pool of css to load in the browser
+	 * @param string $css CSS to be written on browser
+	 */
+	public function addRawCSS($css){
+		if(count(self::$rawData) > 0)
+		{
+			if(in_array($data, self::$rawData['css']) == true)
+			{
+				return false; // We already have it
+			}
+		}
+
+		self::$rawData['css'][] = $data;		
+	}
+
+	/**
 	 * Allow you to add/call external stylesheet
 	 * @param string $file Full path to stylesheet, including .css
 	 */
@@ -131,6 +147,31 @@ class Template {
 		return $html;
 	}
 
+	/**
+	 * Print the raw CSS within <style> tag
+	 * @return string
+	 */
+	public static function renderRawCSS()
+	{
+		$html = '<style type="text/css">';
+
+		if(isset(self::$rawData['css']))
+		{
+			foreach(self::$rawData['css'] as $css)
+			{
+				$html .= $css;
+			}
+		}
+
+		$html .= '</style>';
+
+		return $html;
+	}
+
+	/**
+	 * Sets the handler/painter to customize the UI for form method
+	 * @param FormHandlerInterface $handler The handler/painter is reposnsible to customize how form looks in browser
+	 */
 	public function setFormHandler(FormHandlerInterface $handler){
 		$this->handler = $handler;
 	}
