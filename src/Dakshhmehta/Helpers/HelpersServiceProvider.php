@@ -2,6 +2,7 @@
 
 use Illuminate\Support\ServiceProvider;
 use Config;
+use Form;
 
 class HelpersServiceProvider extends ServiceProvider {
 
