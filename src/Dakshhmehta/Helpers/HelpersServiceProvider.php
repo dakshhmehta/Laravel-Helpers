@@ -17,8 +17,8 @@ class HelpersServiceProvider extends ServiceProvider {
 
 		// Register form macros
 		Form::macro('bool', function($name, $value){
-			$html = '<input type="radio" name="'.$name.'" value="1"'.(($value === 1 || $value == 'Yes') ? ' checked="checked"' : '').'/> Yes&nbsp;&nbsp;';
-			$html .= '<input type="radio" name="'.$name.'" value="0"'.(($value === 0 || $value == 'No') ? ' checked="checked"' : '').'/> No';
+			$html = '<input type="radio" name="'.$name.'" value="1"'.(($value === 1 || $value == 'Yes') ? ' checked="checked"' : '').'> Yes&nbsp;&nbsp;</input>';
+			$html .= '<input type="radio" name="'.$name.'" value="0"'.(($value === 0 || $value == 'No') ? ' checked="checked"' : '').'> No</input>';
 
 			return $html;
 		});
