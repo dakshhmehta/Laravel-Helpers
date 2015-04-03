@@ -3,7 +3,6 @@
 use Illuminate\Support\ServiceProvider;
 use Config;
 use Form;
-use Template;
 
 class HelpersServiceProvider extends ServiceProvider {
 
@@ -16,8 +15,7 @@ class HelpersServiceProvider extends ServiceProvider {
 	{
 		$this->package('dakshhmehta/helpers');
 
-		// Register form macros
-		/*Form::macro('bool', function($name, $value, $other = array()){
+		Form::macro('bool', function($name, $value, $other = array()){
 			$html = '<input type="radio" name="'.$name.'" value="1"'.(($value === 1 || $value == 'Yes') ? ' checked="checked"' : '').'> Yes&nbsp;&nbsp;</input>';
 			$html .= '<input type="radio" name="'.$name.'" value="0"'.(($value === 0 || $value == 'No') ? ' checked="checked"' : '').'> No</input>';
 
@@ -201,7 +199,7 @@ class HelpersServiceProvider extends ServiceProvider {
 			}
 
 			return $html;
-		});*/
+		});
 	}
 
 	/**
