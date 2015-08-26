@@ -69,8 +69,9 @@ class BSTabbedHandler implements FormHandlerInterface {
 						: $field['value']
 					)
 				).'"'.$attributes.' />';
-				$content .= $errors->first($field['name'], '<span class="help-block">:message</span>');
 			}
+
+			$content .= $errors->first($field['name'], '<span class="help-block">:message</span>');
 			$content .= '</div>';
 			$content .= '</div>';
 		}
