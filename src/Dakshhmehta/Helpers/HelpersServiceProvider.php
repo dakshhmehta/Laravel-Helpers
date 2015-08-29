@@ -5,6 +5,14 @@ use Config;
 use Form;
 
 class HelpersServiceProvider extends ServiceProvider {
+	protected $template = null;
+
+	protected function _template(){
+		if($this->template == null)
+			$this->template = new Template(Config::get('helpers.handler'));
+
+		return $this->template;
+	}
 
 	/**
 	 * Bootstrap the application events.
@@ -13,6 +21,8 @@ class HelpersServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
+		$template = $this->_template();
+
 		Form::macro('bool', function($name, $value, $other = array(), $yesValue = 'Yes', $noValue = 'No'){
 			$html = '<input type="radio" name="'.$name.'" value="1"'.(($value === 1 || $value == $yesValue) ? ' checked="checked"' : '').'> '.$yesValue.'&nbsp;&nbsp;</input>';
 			$html .= '<input type="radio" name="'.$name.'" value="0"'.(($value === 0 || $value == $noValue) ? ' checked="checked"' : '').'> '.$noValue.'</input>';
@@ -22,6 +32,25 @@ class HelpersServiceProvider extends ServiceProvider {
 					$html .= '<input type="radio" name="'.$name.'" value="'.$key.'"'.(($value == $key || $value == $label) ? ' checked="checked"' : '').'> '.$label.'</input>';
 				}
 			}
+
+			return $html;
+		});
+
+
+		Form::macro('editor', function($name, $value = null, $attributes = array()) use($template) {
+			$template->addJS('//cdn.ckeditor.com/4.5.3/standard/ckeditor.js');
+			$template->addRawJS('
+				CKEDITOR.replace("'.$name.'");
+			', true);
+
+			$attributesStr = null;
+			if(is_array($attributes) && count($attributes) > 0){
+				foreach($attributes as $key => $value){
+					$attributesStr .= $key.'="'.$value.'" ';
+				}
+			}
+
+			$html = '<textarea name="'.$name.'" id="'.$name.'" '.$attributesStr.'>'.$value.'</textarea>';
 
 			return $html;
 		});
@@ -66,7 +95,7 @@ class HelpersServiceProvider extends ServiceProvider {
 			return $html;
 		});
 
-		Form::macro('datetime', function($name, $value = null, $includeTime = false, $attributes = array()){
+		Form::macro('datetime', function($name, $value = null, $includeTime = false, $attributes = array()) use($template) {
 			$attributesStr = null;
 			if(is_array($attributes) && count($attributes) > 0){
 				foreach($attributes as $key => $value){
@@ -76,10 +105,10 @@ class HelpersServiceProvider extends ServiceProvider {
 
 			$html = '<input type="text" name="'.$name.'" value="'.$value.'" id="'.$name.'" class="form-control" '.$attributesStr.'/>';
 
-			Template::addCSS(Config::get('helpers::plugins_path').'/jquery-ui/jquery-ui.min.css');
-			Template::addJS(Config::get('helpers::plugins_path').'/jquery-ui/jquery-ui.min.js');
+			$template->addCSS(Config::get('helpers::plugins_path').'/jquery-ui/jquery-ui.min.css');
+			$template->addJS(Config::get('helpers::plugins_path').'/jquery-ui/jquery-ui.min.js');
 
-			Template::addRawJS('
+			$template->addRawJS('
 				$("#'.$name.'").date'.(($includeTime == true) ? 'time' : '').'picker({
 					dateFormat: "yy-mm-dd",
 					timeFormat: "hh:mm:ss",
@@ -93,17 +122,12 @@ class HelpersServiceProvider extends ServiceProvider {
 
 			if($includeTime == true)
 			{
-				Template::addCSS(Config::get('helpers::plugins_path').'/jquery-timepicker/src/jquery-ui-timepicker-addon.css');
-				Template::addJS(Config::get('helpers::plugins_path').'/jquery-timepicker/src/jquery-ui-timepicker-addon.js');
+				$template->addCSS(Config::get('helpers::plugins_path').'/jquery-timepicker/src/jquery-ui-timepicker-addon.css');
+				$template->addJS(Config::get('helpers::plugins_path').'/jquery-timepicker/src/jquery-ui-timepicker-addon.js');
 			}
 
 			return $html;
 		});
-
-		#Configs
-		$this->publishes([
-	    	__DIR__.'/../../../config/' => config_path()
-		], 'config');
 	}
 
 	/**
@@ -114,9 +138,18 @@ class HelpersServiceProvider extends ServiceProvider {
 	public function register()
 	{
 		//
-		$this->app['dax-template'] = $this->app->share(function($app){
-			return new Template(Config::get('helpers::handler'));
+		$this->app->singleton('dax-template', function($app){
+			return $this->template;
 		});
+
+		#Configs
+        $config = realpath(__DIR__.'/../../config/config.php');
+
+        $this->mergeConfigFrom($config, 'helpers');
+
+        $this->publishes([
+            $config => config_path('dakshhmehta.helpers.php'),
+        ], 'config');
 	}
 
 	/**

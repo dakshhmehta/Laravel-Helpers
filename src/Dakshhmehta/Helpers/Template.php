@@ -26,8 +26,9 @@ class Template {
 	/**
 	 * Add raw javascript to template before <body>
 	 * @param string $data Raw javascript to be added
+	 * @param string $wrapOnDocumentReady Wraps the code inside $(document).ready(function(){})
 	 */
-	public static function addRawJS($data)
+	public static function addRawJS($data, $wrapOnDocumentReady = false)
 	{
 		if(count(self::$rawData) > 0)
 		{
@@ -37,14 +38,22 @@ class Template {
 			}
 		}
 
-		self::$rawData['js'][] = $data;
+		$html = null;
+
+		if($wrapOnDocumentReady == true){
+			$html .= '$(document).ready(function(){'.$data.'});';
+		}
+		else 
+			$html = $data;
+
+		self::$rawData['js'][] = $html;
 	}
 
 	/**
 	 * Allow you to inject/add javascript file in template
 	 * @param string $file Full path to the file
 	 */
-	public static function addJS($file)
+	public function addJS($file)
 	{
 		if(count(self::$files) > 0)
 		{
@@ -77,7 +86,7 @@ class Template {
 	 * Allow you to add/call external stylesheet
 	 * @param string $file Full path to stylesheet, including .css
 	 */
-	public static function addCSS($file)
+	public function addCSS($file)
 	{
 		if(count(self::$files) > 0)
 		{
@@ -94,7 +103,7 @@ class Template {
 	 * Print all the external CSS files
 	 * @return string
 	 */
-	public static function renderCSS()
+	public function renderCSS()
 	{
 		$html = '';
 		if(isset(self::$files['css']))
@@ -112,7 +121,7 @@ class Template {
 	 * Print the external javascripts
 	 * @return string
 	 */
-	public static function renderJS()
+	public function renderJS()
 	{
 		$html = '';
 		if(isset(self::$files['js']))
@@ -130,7 +139,7 @@ class Template {
 	 * Print the raw javascripts within script tag
 	 * @return string
 	 */
-	public static function renderRawJS()
+	public function renderRawJS()
 	{
 		$html = '<script language="javascript" type="text/javascript">';
 
@@ -151,7 +160,7 @@ class Template {
 	 * Print the raw CSS within <style> tag
 	 * @return string
 	 */
-	public static function renderRawCSS()
+	public function renderRawCSS()
 	{
 		$html = '<style type="text/css">';
 
