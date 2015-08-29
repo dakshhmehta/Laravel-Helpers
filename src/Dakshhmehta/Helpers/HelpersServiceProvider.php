@@ -13,11 +13,9 @@ class HelpersServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
-		$this->package('dakshhmehta/helpers');
-
-		Form::macro('bool', function($name, $value, $other = array()){
-			$html = '<input type="radio" name="'.$name.'" value="1"'.(($value === 1 || $value == 'Yes') ? ' checked="checked"' : '').'> Yes&nbsp;&nbsp;</input>';
-			$html .= '<input type="radio" name="'.$name.'" value="0"'.(($value === 0 || $value == 'No') ? ' checked="checked"' : '').'> No</input>';
+		Form::macro('bool', function($name, $value, $other = array(), $yesValue = 'Yes', $noValue = 'No'){
+			$html = '<input type="radio" name="'.$name.'" value="1"'.(($value === 1 || $value == $yesValue) ? ' checked="checked"' : '').'> '.$yesValue.'&nbsp;&nbsp;</input>';
+			$html .= '<input type="radio" name="'.$name.'" value="0"'.(($value === 0 || $value == $noValue) ? ' checked="checked"' : '').'> '.$noValue.'</input>';
 
 			if(count($other) > 0){
 				foreach($other as $key => $label){
@@ -44,15 +42,6 @@ class HelpersServiceProvider extends ServiceProvider {
 				}
 			}
 			
-			if($multiSelect == true)
-			{
-				Template::addRawJS('
-					$(document).ready(function(){
-						$("#'.$name.'").select2();
-					});
-				');
-			}
-			
 			$html = '<select'.(($multiSelect == true) ? ' multiple' : '').' class="form-control" name="'.$name.(($multiSelect == true) ? '[]' : '').'" id="'.$name.'" '.$attributesStr.'>';
 			
 			if($multiSelect === false)
@@ -77,97 +66,7 @@ class HelpersServiceProvider extends ServiceProvider {
 			return $html;
 		});
 
-		Form::macro('tags', function($name, $value = null, $attributes = array()){
-			Template::addJS(asset('assets/js/libs/jquery.tagsinput.js'));
-			Template::addRawJS('
-				$("#'.$name.'").tagsInput({
-				height: 40
-				});
-			');
-			if(! isset($attributes['id']))
-			{
-				$attributes['id'] = $name;
-			}
-			return Form::text($name, $value, $attributes);
-		});
-
-		Form::macro('uploader', function($name, $action){
-			Template::addJS(asset('assets/plugins/files/plupload/plupload.js'));
-			Template::addJS(asset('assets/plugins/files/plupload/plupload.html5.js'));
-			Template::addJS(asset('assets/plugins/files/plupload/jquery.plupload.queue/jquery.plupload.queue.js'));
-			Template::addRawJS("
-				// Setup html5 version
-		    	$(\"#".$name."\").pluploadQueue({
-			        // General settings
-			        runtimes : 'html5,flash,silverlight,html4',
-			        url : \"".$action."\",
-			         
-			        chunk_size : '1mb',
-			        rename : true,
-			        dragdrop: true,
-			        unique_names: true,
-			         
-			        filters : {
-			            // Maximum file size
-			            max_file_size : '1mb',
-			            // Specify what files to browse for
-			            mime_types: [
-			                {title : \"Image files\", extensions : \"jpg,gif,png\"}
-			            ]
-			        },
-			 
-			        // Resize images on clientside if we can
-			        resize: {
-			            quality : 70
-			        },
-			 
-			 
-			        // Flash settings
-			        flash_swf_url : 'http://rawgithub.com/moxiecode/moxie/master/bin/flash/Moxie.cdn.swf',
-			 
-			        // Silverlight settings
-			        silverlight_xap_url : 'http://rawgithub.com/moxiecode/moxie/master/bin/silverlight/Moxie.cdn.xap',
-
-			        init: {
-			        	FileUploaded: function(up, file, info) {
-			        		info = JSON.parse(info.response);
-			        		console.log(info);
-				        	$('#filesList').val($('#filesList').val() + '<input type=\"hidden\" name=\"".$name."[]\" value=\"'+ info.result +'\" />');
-				        }
-			        }
-			    });
-			");
-			Template::addCSS(asset('assets/plugins/files/plupload/jquery.ui.plupload/css/jquery.ui.plupload.css'));
-
-			$html = '<div id="'.$name.'" style="width: 100%; height: 100%; margin-bottom: 20px;">File uploading is not supported in this browser.</div>
-			<div id="filesList"></div>';
-
-			return $html;
-		});
-
-		Form::macro('datetime', function($name, $value, $dataTemplate, $viewTemplate = null){
-			// Prepare the JS
-			Template::addJS(asset('assets/js/libs/moment.min.js'));
-			Template::addJS(asset('assets/js/libs/combodate.js'));
-
-			$html = Form::text($name, $value, array(
-				'id' => $name,
-				'data-format' => $dataTemplate,
-				'data-template' => (($viewTemplate == null) ? $dataTemplate : $viewTemplate),
-				//'data-value' => $value,
-			));
-
-			Template::addRawJS('
-				$(function(){
-				    $("#'.$name.'").combodate();    
-				    //$("#'.$name.'").setValue("'.$value.'");
-				});
-			');
-
-			return $html;
-		});
-
-		Form::macro('uidatetime', function($name, $value = null, $includeTime = false, $attributes = array()){
+		Form::macro('datetime', function($name, $value = null, $includeTime = false, $attributes = array()){
 			$attributesStr = null;
 			if(is_array($attributes) && count($attributes) > 0){
 				foreach($attributes as $key => $value){
@@ -200,6 +99,11 @@ class HelpersServiceProvider extends ServiceProvider {
 
 			return $html;
 		});
+
+		#Configs
+		$this->publishes([
+	    	__DIR__.'/../../../config/' => config_path()
+		], 'config');
 	}
 
 	/**
