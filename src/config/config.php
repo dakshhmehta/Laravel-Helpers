@@ -2,5 +2,5 @@
 
 return array(
 	'handler' => 'Dakshhmehta\Helpers\Handlers\BSTabbedHandler',
-	'plugins_path' => asset('packages/dakshhmehta/helpers/plugins'),
+	'plugins_path' => env('plugins_path', 'packages/dakshhmehta/helpers/plugins'),
 );
