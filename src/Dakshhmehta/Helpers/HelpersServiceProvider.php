@@ -4,111 +4,111 @@ use Illuminate\Support\ServiceProvider;
 use Config;
 use Form;
 
-class HelpersServiceProvider extends ServiceProvider {
-	protected $template = null;
+class HelpersServiceProvider extends ServiceProvider
+{
+    protected $template = null;
 
-	protected function _template(){
-		if($this->template == null)
-			$this->template = new Template(Config::get('helpers.handler'));
+    protected function _template()
+    {
+        if ($this->template == null) {
+            $this->template = new Template(Config::get('helpers.handler'));
+        }
 
-		return $this->template;
-	}
+        return $this->template;
+    }
 
-	/**
-	 * Bootstrap the application events.
-	 *
-	 * @return void
-	 */
-	public function boot()
-	{
-		$template = $this->_template();
+    /**
+     * Bootstrap the application events.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $template = $this->_template();
 
-		Form::macro('bool', function($name, $value, $other = array(), $yesValue = 'Yes', $noValue = 'No'){
-			$html = '<input type="radio" name="'.$name.'" value="1"'.(($value === 1 || $value == $yesValue) ? ' checked="checked"' : '').'> '.$yesValue.'&nbsp;&nbsp;</input>';
-			$html .= '<input type="radio" name="'.$name.'" value="0"'.(($value === 0 || $value == $noValue) ? ' checked="checked"' : '').'> '.$noValue.'</input>';
+        Form::macro('bool', function ($name, $value, $other = array(), $yesValue = 'Yes', $noValue = 'No') {
+            $html = '<input type="radio" name="'.$name.'" value="1"'.(($value === 1 || $value == $yesValue) ? ' checked="checked"' : '').'> '.$yesValue.'&nbsp;&nbsp;</input>';
+            $html .= '<input type="radio" name="'.$name.'" value="0"'.(($value === 0 || $value == $noValue) ? ' checked="checked"' : '').'> '.$noValue.'</input>';
 
-			if(count($other) > 0){
-				foreach($other as $key => $label){
-					$html .= '<input type="radio" name="'.$name.'" value="'.$key.'"'.(($value == $key || $value == $label) ? ' checked="checked"' : '').'> '.$label.'</input>';
-				}
-			}
+            if (count($other) > 0) {
+                foreach ($other as $key => $label) {
+                    $html .= '<input type="radio" name="'.$name.'" value="'.$key.'"'.(($value == $key || $value == $label) ? ' checked="checked"' : '').'> '.$label.'</input>';
+                }
+            }
 
-			return $html;
-		});
+            return $html;
+        });
 
 
-		Form::macro('editor', function($name, $value = null, $attributes = array()) use($template) {
-			$template->addJS('//cdn.ckeditor.com/4.5.3/standard/ckeditor.js');
-			$template->addRawJS('
+        Form::macro('editor', function ($name, $value = null, $attributes = array()) use ($template) {
+            $template->addJS('//cdn.ckeditor.com/4.5.3/standard/ckeditor.js');
+            $template->addRawJS('
 				CKEDITOR.replace("'.$name.'");
 			', true);
 
-			$attributesStr = null;
-			if(is_array($attributes) && count($attributes) > 0){
-				foreach($attributes as $key => $value){
-					$attributesStr .= $key.'="'.$value.'" ';
-				}
-			}
+            $attributesStr = null;
+            if (is_array($attributes) && count($attributes) > 0) {
+                foreach ($attributes as $key => $value) {
+                    $attributesStr .= $key.'="'.$value.'" ';
+                }
+            }
 
-			$html = '<textarea name="'.$name.'" id="'.$name.'" '.$attributesStr.'>'.$value.'</textarea>';
+            $html = '<textarea name="'.$name.'" id="'.$name.'" '.$attributesStr.'>'.$value.'</textarea>';
 
-			return $html;
-		});
+            return $html;
+        });
 
-		Form::macro('dropdown', function($name, $options = array(), $value = null, $multiSelect = false, $attributes = array()){
-			$values = array();
-			if(is_array($value))
-			{
-				foreach ($value as $val) {
-					$values[] = $val;
-				}
-			}
+        Form::macro('dropdown', function ($name, $options = array(), $value = null, $multiSelect = false, $attributes = array()) {
+            $values = array();
+            if (is_array($value)) {
+                foreach ($value as $val) {
+                    $values[] = $val;
+                }
+            }
 
-			$attributesStr = null;
-			if(is_array($attributes) && count($attributes) > 0){
-				foreach($attributes as $key => $value){
-					$attributesStr .= $key.'="'.$value.'" ';
-				}
-			}
-			
-			$html = '<select'.(($multiSelect == true) ? ' multiple' : '').' class="form-control" name="'.$name.(($multiSelect == true) ? '[]' : '').'" id="'.$name.'" '.$attributesStr.'>';
-			
-			if($multiSelect === false)
-			{
-				$html .= '<option value="">-- Select --</option>';
-			}
+            $attributesStr = null;
+            if (is_array($attributes) && count($attributes) > 0) {
+                foreach ($attributes as $key => $value) {
+                    $attributesStr .= $key.'="'.$value.'" ';
+                }
+            }
 
-			foreach($options as $key => $label)
-			{
-				$html .= '<option '.(
-					(
-						($multiSelect == false) 
-						? ($key === $value || $label == $value) 
-						: (in_array($key, $values) || in_array($label, $values))
-					) 
-					? 'selected ' 
-					: '').'value="'.$key.'">'.$label.'</option>';
-			}
+            $html = '<select'.(($multiSelect == true) ? ' multiple' : '').' class="form-control" name="'.$name.(($multiSelect == true) ? '[]' : '').'" id="'.$name.'" '.$attributesStr.'>';
 
-			$html .= '</select>';
+            if ($multiSelect === false) {
+                $html .= '<option value="">-- Select --</option>';
+            }
 
-			return $html;
-		});
+            foreach ($options as $key => $label) {
+                $html .= '<option '.(
+                    (
+                        ($multiSelect == false)
+                        ? ($key === $value || $label == $value)
+                        : (in_array($key, $values) || in_array($label, $values))
+                    )
+                    ? 'selected '
+                    : '').'value="'.$key.'">'.$label.'</option>';
+            }
 
-		Form::macro('datetime', function($name, $value = null, $includeTime = false, $attributes = array()) use($template) {
-			$attributesStr = null;
-			if(is_array($attributes) && count($attributes) > 0){
-				foreach($attributes as $key => $value){
-					$attributesStr .= $key.'="'.$value.'" ';
-				}
-			}
+            $html .= '</select>';
 
-			$html = '<input type="text" name="'.$name.'" value="'.$value.'" id="'.$name.'" class="form-control" '.$attributesStr.'/>';
+            return $html;
+        });
 
-			$template->addCSS(Config::get('helpers::plugins_path').'/jquery-ui/jquery-ui.min.css');
-			$template->addJS(Config::get('helpers::plugins_path').'/jquery-ui/jquery-ui.min.js');
+        Form::macro('datetime', function ($name, $value = null, $includeTime = false, $attributes = array()) use ($template) {
+            $attributesStr = null;
+            if (is_array($attributes) && count($attributes) > 0) {
+                foreach ($attributes as $key => $value) {
+                    $attributesStr .= $key.'="'.$value.'" ';
+                }
+            }
 
-			$template->addRawJS('
+            $html = '<input type="text" name="'.$name.'" value="'.$value.'" id="'.$name.'" class="form-control" '.$attributesStr.'/>';
+
+            $template->addCSS(Config::get('helpers::plugins_path').'/jquery-ui/jquery-ui.min.css');
+            $template->addJS(Config::get('helpers::plugins_path').'/jquery-ui/jquery-ui.min.js');
+
+            $template->addRawJS('
 				$("#'.$name.'").date'.(($includeTime == true) ? 'time' : '').'picker({
 					dateFormat: "yy-mm-dd",
 					timeFormat: "hh:mm:ss",
@@ -120,29 +120,28 @@ class HelpersServiceProvider extends ServiceProvider {
 				});
 			');
 
-			if($includeTime == true)
-			{
-				$template->addCSS(Config::get('helpers::plugins_path').'/jquery-timepicker/src/jquery-ui-timepicker-addon.css');
-				$template->addJS(Config::get('helpers::plugins_path').'/jquery-timepicker/src/jquery-ui-timepicker-addon.js');
-			}
+            if ($includeTime == true) {
+                $template->addCSS(Config::get('helpers::plugins_path').'/jquery-timepicker/src/jquery-ui-timepicker-addon.css');
+                $template->addJS(Config::get('helpers::plugins_path').'/jquery-timepicker/src/jquery-ui-timepicker-addon.js');
+            }
 
-			return $html;
-		});
-	}
+            return $html;
+        });
+    }
 
-	/**
-	 * Register the service provider.
-	 *
-	 * @return void
-	 */
-	public function register()
-	{
-		//
-		$this->app->singleton('dax-template', function($app){
-			return $this->template;
-		});
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
+        $this->app->singleton('dax-template', function ($app) {
+            return $this->template;
+        });
 
-		#Configs
+        #Configs
         $config = realpath(__DIR__.'/../../config/config.php');
 
         $this->mergeConfigFrom($config, 'helpers');
@@ -150,16 +149,15 @@ class HelpersServiceProvider extends ServiceProvider {
         $this->publishes([
             $config => config_path('dakshhmehta.helpers.php'),
         ], 'config');
-	}
+    }
 
-	/**
-	 * Get the services provided by the provider.
-	 *
-	 * @return array
-	 */
-	public function provides()
-	{
-		return array('dax-template');
-	}
-
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return array('dax-template');
+    }
 }
