@@ -40,10 +40,10 @@ class HelpersServiceProvider extends ServiceProvider
         });
 
 
-        Form::macro('editor', function ($name, $value = null, $attributes = array()) use ($template) {
-            $template->addJS('//cdn.ckeditor.com/4.5.3/standard/ckeditor.js');
+        Form::macro('editor', function ($name, $value = null, $options = array(), $attributes = array()) use ($template) {
+            $template->addJS('//cdn.ckeditor.com/4.6.2/standard/ckeditor.js');
             $template->addRawJS('
-				CKEDITOR.replace("'.$name.'");
+				CKEDITOR.replace("'.$name.'", '.json_decode($options).');
 			', true);
 
             $attributesStr = null;
