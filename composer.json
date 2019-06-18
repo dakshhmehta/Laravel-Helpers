@@ -9,12 +9,13 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "illuminate/support": "4.2.*"
+        "illuminate/support": "~5.1.0|~5.2.0|~5.3.0|~5.4.0|~5.5.0|~5.6",
+        "laravelcollective/html": "~5.1.0|~5.2.0|~5.3.0|~5.5.0|~5.6"        
     },
     "autoload": {
         "psr-0": {
             "Dakshhmehta\\Helpers\\": "src/"
         }
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "stable"
 }
